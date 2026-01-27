@@ -42,4 +42,4 @@ jobs:
           mvn sonar:sonar \ 
             -Dsonar.projectKey=sathsaramg214187v_lab02 \ 
             -Dsonar.organization=sathsaramg214187v \ 
-            -Dsonar.host.url=https://sonarcloud.io 
+            -Dsonar.host.url=https://sonarcloud.io \
