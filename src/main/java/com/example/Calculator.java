@@ -44,7 +44,7 @@ public class Calculator {
         return x + y;
     }
 
-    //sumation value
+    //sumation 
     public int sumValues(int a, int b) {
         return a + b;
     }
