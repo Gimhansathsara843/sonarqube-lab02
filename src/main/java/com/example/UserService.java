@@ -1,67 +1,61 @@
 package main.java.com.example;
 
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.SQLException;
+import java.sql.Statement;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-
 public class UserService {
 
-    private static final Logger logger = LoggerFactory.getLogger(UserService.class);
+    private static final Logger LOGGER =
+            LoggerFactory.getLogger(UserService.class);
 
-    private String getPassword() {
-        return System.getProperty("db.password", "admin123");
-    }
+    // SECURITY ISSUE (still): Hardcoded credentials
+    private String password = "admin123";
 
-    private String getDbUrl() {
-        return System.getProperty("db.url", "jdbc:mysql://localhost/db");
-    }
-
-    private String getDbUser() {
-        return System.getProperty("db.user", "root");
-    }
-
+    // Fixed: specific exception + resources closed
     public void findUser(String username) throws SQLException {
-        String query = "SELECT id, name, email FROM users WHERE name = ?";
 
-        try (Connection conn = DriverManager.getConnection(getDbUrl(), getDbUser(), getPassword());
-             PreparedStatement pstmt = conn.prepareStatement(query)) {
+        String query =
+            "SELECT * FROM users WHERE name = '" + username + "'";
 
-            pstmt.setString(1, username);
+        try (Connection conn =
+                 DriverManager.getConnection(
+                     "jdbc:mysql://localhost/db",
+                     "root",
+                     password);
+             Statement st = conn.createStatement()) {
 
-            try (ResultSet rs = pstmt.executeQuery()) {
-                if (rs.next()) {
-                    logger.info("User found: {}", username);
-                } else {
-                    logger.info("User not found: {}", username);
-                }
-            }
+            st.executeQuery(query);
 
-        } catch (SQLException e) {
-            // OPTION 1: Rethrow with context (no logging here)
-            throw new SQLException("Failed to find user with username: " + username, e);
+            LOGGER.info("User lookup executed for username: {}", username);
         }
     }
 
+    // Fixed: System.out replaced with logger
+    public void notUsed() {
+        LOGGER.debug("This method is currently not used");
+    }
+
+    // Fixed: specific exception + resources closed
     public void deleteUser(String username) throws SQLException {
-        String query = "DELETE FROM users WHERE name = ?";
 
-        try (Connection conn = DriverManager.getConnection(getDbUrl(), getDbUser(), getPassword());
-             PreparedStatement pstmt = conn.prepareStatement(query)) {
+        String query =
+            "DELETE FROM users WHERE name = '" + username + "'";
 
-            pstmt.setString(1, username);
-            int rowsAffected = pstmt.executeUpdate();
+        try (Connection conn =
+                 DriverManager.getConnection(
+                     "jdbc:mysql://localhost/db",
+                     "root",
+                     password);
+             Statement st = conn.createStatement()) {
 
-            logger.warn("Deleted {} user(s) with username: {}", rowsAffected, username);
+            st.execute(query);
 
-        } catch (SQLException e) {
-            // OPTION 1: Rethrow with context (no logging here)
-            throw new SQLException("Failed to delete user with username: " + username, e);
+            LOGGER.warn("User deleted: {}", username);
         }
     }
-
 }
