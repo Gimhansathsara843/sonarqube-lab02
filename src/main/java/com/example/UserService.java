@@ -56,6 +56,8 @@ public class UserService {
             st.execute(query);
 
             LOGGER.warn("User deleted: {}", username);
+
+            //========================
         }
     }
 }
